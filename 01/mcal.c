@@ -36,10 +36,6 @@ void insert_elf(t_elf *top, t_elf elf, unsigned int insert_at,
 }
 
 void set_max(t_elf *top, t_elf elf, unsigned int num_top_elves) {
-  if (elf.id + 1 < num_top_elves) {
-    insert_elf(top, elf, elf.id + 1, num_top_elves);
-    return;
-  }
 
   for (size_t i = 0; i < num_top_elves; i++) {
     if (top[i].callories < elf.callories) {
@@ -81,7 +77,7 @@ int main(int argc, char **argv) {
 
   t_elf elf = {.id = 0, .callories = 0};
 
-  for (size_t i = 1; fgets(row, MAX_LENGTH + 1, stdin) != NULL; i++) {
+  while (fgets(row, MAX_LENGTH + 1, stdin) != NULL) {
     if (row[0] == '\n') {
       set_max(top, elf, num_top_elves);
 
