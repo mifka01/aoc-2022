@@ -1,6 +1,6 @@
 
 /**
- * @title Advent of Code - 02
+ * @title Advent of Code - 03
  * @author Mifka Radim
  **/
 
