@@ -87,7 +87,7 @@ int main() {
   char items[MAX_LENGTH + 2];
   int total_priority = 0;
 
-  for (size_t i = 1; fgets(items, MAX_LENGTH + 2, stdin) != NULL; i++) {
+  while (fgets(items, MAX_LENGTH + 2, stdin) != NULL) {
     t_rucksack rucksack = create_rucksack(items);
     int rucksack_duplicates_priority = get_duplicates_priority(rucksack);
     if (rucksack_duplicates_priority == -1) {
