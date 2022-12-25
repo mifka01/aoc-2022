@@ -39,7 +39,7 @@ int main() {
   char row[MAX_LENGTH + 2];
   unsigned int total_score = 0;
 
-  for (size_t i = 1; fgets(row, MAX_LENGTH + 2, stdin) != NULL; i++) {
+  while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     if (row[3] != '\n') {
       fprintf(stderr, "error: incorrect stdin format");
       return 1;
