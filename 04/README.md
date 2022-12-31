@@ -1,5 +1,5 @@
 
-## --- Day 4: Camp Cleanup ---
+## Day 4: Camp Cleanup
 
 Space needs to be cleared before the last supplies can be unloaded from the ships, and so several Elves have been assigned the job of cleaning up sections of the camp. Every section has a unique  _ID number_, and each Elf is assigned a range of section IDs.
 
@@ -14,7 +14,6 @@ For example, consider the following list of section assignment pairs:
 2-8,3-7
 6-6,4-6
 2-6,4-8
-
 ```
 
 For the first few pairs, this list means:
@@ -43,13 +42,11 @@ This example list uses single-digit section IDs to make it easier to draw; your 
 
 .23456...  2-6
 ...45678.  4-8
-
 ```
 
 Some of the pairs have noticed that one of their assignments  _fully contains_  the other. For example,  `2-8`  fully contains  `3-7`, and  `6-6`  is fully contained by  `4-6`. In pairs where one assignment fully contains the other, one Elf in the pair would be exclusively cleaning sections their partner will already be cleaning, so these seem like the most in need of reconsideration. In this example, there are  `_2_`  such pairs.
 
 _In how many assignment pairs does one range fully contain the other?_
-
 
 ## --- Part Two ---
 
