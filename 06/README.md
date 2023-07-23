@@ -22,14 +22,14 @@ mjqjpqmgbljsphdztnvjfqwrcgsmlb
 
 After the first three characters (`mjq`) have been received, there haven't been enough characters received yet to find the marker. The first time a marker could occur is after the fourth character is received, making the most recent four characters `mjqj`. Because `j` is repeated, this isn't a marker.
 
-The first time a marker appears is after the _seventh_ character arrives. Once it does, the last four characters received are `jpqm`, which are all different. In this case, your subroutine should report the value `_7_`, because the first start-of-packet marker is complete after 7 characters have been processed.
+The first time a marker appears is after the _seventh_ character arrives. Once it does, the last four characters received are `jpqm`, which are all different. In this case, your subroutine should report the value `7`, because the first start-of-packet marker is complete after 7 characters have been processed.
 
 Here are a few more examples:
 
-- `bvwbjplbgvbhsrlpgdmjqwftvncz`: first marker after character `_5_`
-- `nppdvjthqldpwncqszvftbrmjlhg`: first marker after character `_6_`
-- `nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg`: first marker after character `_10_`
-- `zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw`: first marker after character `_11_`
+- `bvwbjplbgvbhsrlpgdmjqwftvncz`: first marker after character `5`
+- `nppdvjthqldpwncqszvftbrmjlhg`: first marker after character `6`
+- `nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg`: first marker after character `10`
+- `zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw`: first marker after character `11`
 
 _How many characters need to be processed before the first start-of-packet marker is detected?_
 
@@ -41,10 +41,10 @@ A _start-of-message marker_ is just like a start-of-packet marker, except it con
 
 Here are the first positions of start-of-message markers for all of the above examples:
 
-- `mjqjpqmgbljsphdztnvjfqwrcgsmlb`: first marker after character `_19_`
-- `bvwbjplbgvbhsrlpgdmjqwftvncz`: first marker after character `_23_`
-- `nppdvjthqldpwncqszvftbrmjlhg`: first marker after character `_23_`
-- `nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg`: first marker after character `_29_`
-- `zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw`: first marker after character `_26_`
+- `mjqjpqmgbljsphdztnvjfqwrcgsmlb`: first marker after character `19`
+- `bvwbjplbgvbhsrlpgdmjqwftvncz`: first marker after character `23`
+- `nppdvjthqldpwncqszvftbrmjlhg`: first marker after character `23`
+- `nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg`: first marker after character `29`
+- `zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw`: first marker after character `26`
 
 _How many characters need to be processed before the first start-of-message marker is detected?_
