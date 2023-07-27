@@ -1,5 +1,5 @@
 /**
- * @title Advent of Code - 08
+ * @title Advent of Code - 09
  * @author Mifka Radim
  **/
 
@@ -131,6 +131,10 @@ int main() {
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     row[strlen(row) - 1] = '\0';
+
+    if (strlen(row) < 2)
+      continue;
+
     direction_to_delta(row, &dx, &dy);
 
     if (dx == 0 && dy == 0) {
