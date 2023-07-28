@@ -43,12 +43,13 @@ int en_queue(string_queue *queue, char *item) {
 
   if (queue->last == queue->size - 1) {
     queue->size += REALLOC_AMOUNT;
-    queue->items = (char **)realloc(queue->items, queue->size * sizeof(char *));
-  }
+    char **ptr = realloc(queue->items, queue->size * sizeof(char *));
 
-  if (queue->items == NULL) {
-    printf("Error: Memory allocation failed during queue resize.\n");
-    return 1;
+    if (queue->items == NULL) {
+      printf("Error: Memory allocation failed during queue resize.\n");
+      return 1;
+    }
+    queue->items = ptr;
   }
 
   queue->last++;
