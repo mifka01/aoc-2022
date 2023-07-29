@@ -107,20 +107,18 @@ void add_point(point_arr *arr, point point) {
   arr->size++;
 }
 
-point_arr create_point_array(int length) {
-  point_arr arr;
-  arr.points = malloc(sizeof(point) * length);
-  arr.size = 0;
-  arr.max_size = length;
-  return arr;
+void init_point_array(point_arr *arr, int length) {
+  arr->points = malloc(sizeof(point) * length);
+  arr->size = 0;
+  arr->max_size = length;
 }
 
 void clear_point_array(point_arr *arr) { free(arr->points); }
 
 int main() {
   char row[MAX_LENGTH + 2];
-
-  point_arr tail_positions = create_point_array(MAX_TAIL_POSITIONS);
+  point_arr tail_positions;
+  init_point_array(&tail_positions, MAX_TAIL_POSITIONS);
   point start = {.x = 0, .y = 0};
   add_point(&tail_positions, start);
 

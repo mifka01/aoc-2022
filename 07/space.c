@@ -38,23 +38,20 @@ dir *get_dir(char *name, dir *arr, int len_dirs) {
   return NULL;
 }
 
-dir create_dir(char *name, int size, dir *dirs, int dirs_len) {
-  dir new_dir;
+void init_dir(dir *new_dir, char *name, int size, dir *dirs, int dirs_len) {
   int name_len = strlen(name);
 
-  new_dir.name = calloc(name_len + 1, sizeof(char));
-  new_dir.dirs = malloc(sizeof(dir) * MAX_SUBDIRS);
-  new_dir.dirs_len = dirs_len;
-  new_dir.size = size;
-  new_dir.max_subdirs = MAX_SUBDIRS;
+  new_dir->name = calloc(name_len + 1, sizeof(char));
+  new_dir->dirs = malloc(sizeof(dir) * MAX_SUBDIRS);
+  new_dir->dirs_len = dirs_len;
+  new_dir->size = size;
+  new_dir->max_subdirs = MAX_SUBDIRS;
 
-  memcpy(new_dir.name, name, name_len);
+  memcpy(new_dir->name, name, name_len);
 
   for (int i = 0; i < dirs_len; i++) {
-    new_dir.dirs[i] = &dirs[i];
+    new_dir->dirs[i] = &dirs[i];
   }
-
-  return new_dir;
 }
 
 void add_subdir(dir *cur_dir, dir *subdir) {
@@ -118,7 +115,7 @@ int main() {
   dir arr[500];
   char *path = calloc(100, sizeof(char));
   int dirs = 1;
-  arr[0] = create_dir("/", 0, NULL, 0);
+  init_dir(&arr[0], "/", 0, NULL, 0);
   dir *current_dir;
   int ls = 0;
 
@@ -142,7 +139,7 @@ int main() {
     } else if (strncmp(row, "dir", 3) == 0) {
 
       char *dirname = get_fullpath(path, row + 4);
-      arr[dirs] = create_dir(dirname, 0, NULL, 0);
+      init_dir(&arr[dirs], dirname, 0, NULL, 0);
       free(dirname);
 
       if (ls)

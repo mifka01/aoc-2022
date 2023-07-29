@@ -23,14 +23,11 @@ typedef struct string_queue {
 
 } string_queue;
 
-string_queue create_queue(int size) {
-  string_queue q;
-  q.first = -1;
-  q.last = -1;
-  q.size = size;
-  q.items = (char **)malloc(sizeof(char *) * size);
-
-  return q;
+void init_queue(string_queue *q, int size) {
+  q->first = -1;
+  q->last = -1;
+  q->size = size;
+  q->items = (char **)malloc(sizeof(char *) * size);
 }
 
 int en_queue(string_queue *queue, char *item) {
@@ -75,7 +72,7 @@ char *de_queue(string_queue *queue) {
 }
 
 void print_queue(string_queue queue) {
-  for (int i = 0; i <= queue.last; i++) {
+  for (int i = queue.first; i <= queue.last; i++) {
     printf("%d. -> %s\n", i, queue.items[i]);
   }
 }
@@ -111,7 +108,8 @@ int main() {
   int free = 0;
   int stop = CRT_WIDTH;
   int total = 0;
-  string_queue instructions = create_queue(QUEUE_SIZE);
+  string_queue instructions;
+  init_queue(&instructions, QUEUE_SIZE);
   char *instruction = "noop";
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {

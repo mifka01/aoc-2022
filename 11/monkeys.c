@@ -47,12 +47,10 @@ void print_monkeys(monkey_arr arr) {
   }
 }
 
-monkey_arr create_monkey_array(int length) {
-  monkey_arr arr;
-  arr.monkeys = malloc(sizeof(monkey) * length);
-  arr.size = 0;
-  arr.max_size = length;
-  return arr;
+void init_monkey_array(monkey_arr *arr, int length) {
+  arr->monkeys = malloc(sizeof(monkey) * length);
+  arr->size = 0;
+  arr->max_size = length;
 }
 
 int add_monkey(monkey_arr *arr, monkey new_monkey) {
@@ -91,12 +89,11 @@ int add_monkey_item(monkey *monkey, long long int item) {
   return 0;
 }
 
-monkey create_monkey(int max_items) {
-  monkey monkey = {.items_len = 0,
-                   .items_max = max_items,
-                   .inspected = 0,
-                   .items = malloc(max_items * sizeof(long long int))};
-  return monkey;
+void init_monkey(monkey *monkey, int max_items) {
+  monkey->items_len = 0;
+  monkey->items_max = max_items;
+  monkey->inspected = 0;
+  monkey->items = malloc(max_items * sizeof(long long int));
 }
 
 void free_monkeys(monkey_arr *arr) {
@@ -179,8 +176,10 @@ long long int get_business_level(monkey_arr arr) {
 int main() {
   char row[MAX_LENGTH + 2];
   int monkey_rows = 0;
-  monkey_arr monkey_arr = create_monkey_array(MONKEYS);
-  monkey monkey = create_monkey(MAX_ITEMS);
+  monkey_arr monkey_arr;
+  init_monkey_array(&monkey_arr, MONKEYS);
+  monkey monkey;
+  init_monkey(&monkey, MAX_ITEMS);
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     row[strlen(row) - 1] = '\0';
@@ -224,7 +223,7 @@ int main() {
         free_monkeys(&monkey_arr);
         return 1;
       }
-      monkey = create_monkey(MAX_ITEMS);
+      init_monkey(&monkey, MAX_ITEMS);
     }
     monkey_rows++;
   }
