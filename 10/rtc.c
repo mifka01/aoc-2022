@@ -42,7 +42,7 @@ int en_queue(string_queue *queue, char *item) {
     queue->size += REALLOC_AMOUNT;
     char **ptr = realloc(queue->items, queue->size * sizeof(char *));
 
-    if (queue->items == NULL) {
+    if (ptr == NULL) {
       printf("Error: Memory allocation failed during queue resize.\n");
       return 1;
     }
