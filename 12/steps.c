@@ -164,12 +164,7 @@ int add_neighbor(node *n, node *neighbor) {
   return 0;
 }
 
-int is_neighbor(node n1, node n2) {
-
-  if (n1.value >= n2.value - 1)
-    return 1;
-  return 0;
-}
+int is_neighbor(node n1, node n2) { return (n1.value >= n2.value - 1); }
 
 int bfs(node *s, node *e, queue *node_queue) {
   node *current;
