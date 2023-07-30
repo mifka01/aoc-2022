@@ -11,12 +11,10 @@
 #include <string.h>
 
 #define MAX_LENGTH 200
-#define REALLOC_AMOUNT 5
-#define QUEUE_SIZE 5
+#define REALLOC_AMOUNT 50
+#define QUEUE_SIZE 50
 #define NEIGHBORS_SIZE 4
-// 41
 #define ROWS 41
-// 113
 #define COLS 113
 
 #define FRESH 0
@@ -88,7 +86,12 @@ node *de_queue(queue *queue) {
   return NULL;
 }
 
-void clear_queue(queue *queue) {
+void reset_queue(queue *queue) {
+  queue->first = -1;
+  queue->last = -1;
+}
+
+void free_queue(queue *queue) {
   if (queue == NULL) {
     return;
   }
@@ -168,16 +171,51 @@ int is_neighbor(node n1, node n2) {
   return 0;
 }
 
+int bfs(node *s, node *e, queue *node_queue) {
+  node *current;
+
+  en_queue(node_queue, s);
+
+  while (!empty_queue(*node_queue)) {
+    current = de_queue(node_queue);
+
+    for (int i = 0; i < current->neighbors_size; i++) {
+      if (current->neighbors[i]->status == FRESH) {
+        current->neighbors[i]->status = OPEN;
+        current->neighbors[i]->distance = current->distance + 1;
+        en_queue(node_queue, current->neighbors[i]);
+      }
+    }
+    current->status = CLOSED;
+  }
+  return e->distance;
+}
+
+void reset_nodes(node matrix[ROWS][COLS]) {
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      matrix[i][j].status = FRESH;
+      matrix[i][j].distance = INT_MAX;
+    }
+  }
+}
+
+void free_nodes(node matrix[ROWS][COLS]) {
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      free(matrix[i][j].neighbors);
+    }
+  }
+}
+
 int main() {
   char row[MAX_LENGTH + 2];
   node matrix[ROWS][COLS];
+
   int row_index = 0;
+
   node *start;
   node *end;
-  node *current;
-  queue node_queue;
-
-  init_queue(&node_queue, QUEUE_SIZE);
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     row[strlen(row) - 1] = '\0';
@@ -216,21 +254,31 @@ int main() {
     }
   }
 
-  en_queue(&node_queue, start);
+  int min = INT_MAX;
+  queue node_queue;
+  init_queue(&node_queue, QUEUE_SIZE);
 
-  while (!empty_queue(node_queue)) {
-    current = de_queue(&node_queue);
-    for (int i = 0; i < current->neighbors_size; i++) {
-      if (current->neighbors[i]->status == FRESH) {
-        current->neighbors[i]->status = OPEN;
-        current->neighbors[i]->distance = current->distance + 1;
-        en_queue(&node_queue, current->neighbors[i]);
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      if (matrix[i][j].value == 'a') {
+        start = &matrix[i][j];
+        start->status = OPEN;
+        start->distance = 0;
+        int distance = bfs(start, end, &node_queue);
+        reset_queue(&node_queue);
+
+        if (distance < min)
+          min = distance;
+
+        reset_nodes(matrix);
       }
     }
-    current->status = CLOSED;
   }
 
-  print_node(*start);
-  print_node(*end);
+  printf("Minimum steps to end: %d\n", min);
+
+  free_nodes(matrix);
+  free_queue(&node_queue);
+
   return 0;
 }
