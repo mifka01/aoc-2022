@@ -247,8 +247,7 @@ int main() {
     if (compare_lists(pairs[i].left, pairs[i].right) == 1)
       indices_sum += i + 1;
   }
-  // print_pairs(pairs, pairs_size);
-  printf("%d\n", indices_sum);
+  printf("Sum of indices: %d\n", indices_sum);
   free_pairs(&pairs, pairs_size);
   return 0;
 }
