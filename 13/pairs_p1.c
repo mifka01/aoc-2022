@@ -216,6 +216,7 @@ int compare_lists(list *left, list *right) {
 
   return 0;
 }
+
 int main() {
   char row[MAX_LENGTH + 2];
   pair *pairs = malloc(sizeof(pair) * PAIRS);
