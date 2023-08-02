@@ -13,8 +13,7 @@
 
 #define MAX_LENGTH 512
 #define REALLOC_AMOUNT 10
-// #define PATHS 2
-#define PATHS 149
+#define PATHS 10
 #define PATH_SIZE 10
 
 #define AIR 0
@@ -24,7 +23,7 @@
 #define TOP 4
 #define SKIP 5
 
-#define STRECH 500
+#define EXPAND_FLOOR 10
 
 #define POINTS_ARE_EQUAL(pt1, pt2) ((pt1.x == pt2.x) && (pt1.y == pt2.y))
 
@@ -169,10 +168,34 @@ void free_paths(solid_path **paths, int size) {
   free(*paths);
 }
 
-int move_sand(point *p, int rows, int cols, int ***matrix) {
+void expand_floor(int *rows, int *cols, int ***matrix) {
+  *cols += EXPAND_FLOOR;
+  for (int i = 0; i < *rows; i++) {
+    (*matrix)[i] = realloc((*matrix)[i], *cols * sizeof(int));
+    for (int j = *cols - EXPAND_FLOOR; j < *cols; j++) {
+      (*matrix)[i][j] = AIR;
+    }
+  }
 
-  if (p->x == cols - 1 || p->y == rows - 1)
-    return SKIP;
+  for (int i = 0; i < *rows; i++) {
+    for (int j = *cols - 1; j >= EXPAND_FLOOR / 2; j--) {
+      (*matrix)[i][j] = (*matrix)[i][j - EXPAND_FLOOR / 2];
+      (*matrix)[i][j - EXPAND_FLOOR / 2] = AIR;
+    }
+  }
+
+  for (int j = 0; j < *cols; j++) {
+    (*matrix)[*rows - 1][j] = ROCK;
+  }
+}
+
+int move_sand(point *p, point *start, int *rows, int *cols, int ***matrix) {
+
+  if (p->x == *cols - 1 || p->y == *rows - 1 || p->x <= 0) {
+    expand_floor(rows, cols, matrix);
+    p->x += EXPAND_FLOOR / 2;
+    start->x += EXPAND_FLOOR / 2;
+  }
 
   if ((*matrix)[p->y + 1][p->x] == AIR) {
     (*matrix)[p->y][p->x] = AIR;
@@ -190,17 +213,21 @@ int move_sand(point *p, int rows, int cols, int ***matrix) {
 
     p->y++;
     p->x++;
-    return move_sand(p, rows, cols, matrix);
+    return move_sand(p, start, rows, cols, matrix);
   }
 
   p->y++;
   p->x--;
-  return move_sand(p, rows, cols, matrix);
+  return move_sand(p, start, rows, cols, matrix);
 }
 
 int main() {
   char row[MAX_LENGTH + 2];
   solid_path *paths = malloc(PATHS * sizeof(solid_path));
+
+  int paths_size = 0;
+  int max_paths = PATHS;
+
   int row_num = 0;
 
   int minx = INT_MAX;
@@ -212,12 +239,19 @@ int main() {
     if (strlen(row) == 0) {
       continue;
     }
+
+    if (paths_size == max_paths) {
+      max_paths += REALLOC_AMOUNT;
+      paths = realloc(paths, (max_paths) * sizeof(solid_path));
+    }
+
     init_path(&paths[row_num], PATH_SIZE);
     parse_input_row(row, &paths[row_num]);
     row_num++;
+    paths_size++;
   }
 
-  for (int i = 0; i < PATHS; i++) {
+  for (int i = 0; i < paths_size; i++) {
     if (paths[i].minx < minx)
       minx = paths[i].minx;
 
@@ -227,12 +261,6 @@ int main() {
     if (paths[i].maxy > maxy)
       maxy = paths[i].maxy;
   }
-
-  // infinity ground
-  // with this implementation it would be necessary to implement array shifting,
-  // so I decided to leave the array static
-  maxx += STRECH;
-  minx -= STRECH;
 
   int cols = maxx - minx + 1;
   int rows = maxy + 1 + 2;
@@ -248,7 +276,7 @@ int main() {
   for (int y = 0; y < rows; y++) {
     for (int x = 0; x < cols; x++) {
       point p = {.x = x + minx, .y = y};
-      if (is_rock(p, paths, PATHS))
+      if (is_rock(p, paths, paths_size))
         matrix[y][x] = ROCK;
       else if (POINTS_ARE_EQUAL(p, start_sand))
         matrix[y][x] = SAND;
@@ -270,7 +298,7 @@ int main() {
         top = 1;
         break;
       }
-      if (move_sand(&cur_sand, rows, cols, &matrix) == REST) {
+      if (move_sand(&cur_sand, &start_sand, &rows, &cols, &matrix) == REST) {
         rested++;
         break;
       }
@@ -278,7 +306,7 @@ int main() {
     cur_sand = start_sand;
   }
   printf("Units of sand rested: %d\n", rested);
-  free_paths(&paths, PATHS);
+  free_paths(&paths, paths_size);
   free_matrix(rows, &matrix);
   return 0;
 }
