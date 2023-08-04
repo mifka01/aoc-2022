@@ -11,19 +11,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LENGTH 100
+#define MAX_LENGTH 500
 #define REALLOC_AMOUNT 10
 
-#define UNKNOWN 0
-#define SENSOR 1
-#define BEACON 2
-#define NOT_BEACON 3
-
 #define POINTS_ARE_EQUAL(pt1, pt2) ((pt1.x == pt2.x) && (pt1.y == pt2.y))
+
 typedef struct point {
-  int value;
   int x;
   int y;
+  int distance;
 } point;
 
 typedef struct point_arr {
@@ -52,27 +48,7 @@ void init_point_array(point_arr *arr, int length) {
 
 void free_point_array(point_arr *arr) { free(arr->points); }
 
-void print_matrix(int rows, int cols, int **matrix) {
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if (matrix[i][j] == NOT_BEACON)
-        printf("#");
-      else if (matrix[i][j] == SENSOR)
-        printf("S");
-      else if (matrix[i][j] == BEACON)
-        printf("B");
-      else
-        printf(".");
-    }
-    printf("\n");
-  }
-}
-void free_matrix(int rows, int ***matrix) {
-  for (int i = 0; i < rows; i++) {
-    free((*matrix)[i]);
-  }
-  free(*matrix);
-}
+int distance(point p1, point p2) { return abs(p1.x - p2.x) + abs(p1.y - p2.y); }
 
 int point_in_array(point p, point_arr arr) {
   for (int i = 0; i < arr.size; i++) {
@@ -85,18 +61,16 @@ int point_in_array(point p, point_arr arr) {
 int main() {
   char row[MAX_LENGTH + 2];
 
-  point_arr sensors;
-  point_arr beacons;
-
-  init_point_array(&sensors, REALLOC_AMOUNT);
-  init_point_array(&beacons, REALLOC_AMOUNT);
-
-  point sensor = {.value = SENSOR};
-  point beacon = {.value = BEACON};
+  point sensor;
+  point beacon;
 
   int minx = INT_MAX;
   int maxx = INT_MIN;
-  int maxy = INT_MIN;
+
+  point_arr devices;
+  init_point_array(&devices, REALLOC_AMOUNT);
+
+  point p = {.x = 0, .y = 2000000};
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     row[strlen(row) - 1] = '\0';
@@ -108,55 +82,31 @@ int main() {
       return 1;
     }
 
-    add_point(&sensors, sensor);
-    add_point(&beacons, beacon);
+    if (sensor.y == p.y && !point_in_array(sensor, devices))
+      add_point(&devices, sensor);
 
-    if (beacon.x < minx)
-      minx = beacon.x;
+    if (beacon.y == p.y && !point_in_array(beacon, devices))
+      add_point(&devices, beacon);
 
-    if (beacon.x > maxx)
-      maxx = beacon.x;
+    sensor.distance = distance(sensor, beacon);
 
-    if (beacon.y > maxy)
-      maxy = beacon.y;
-
-    if (sensor.x < minx)
-      minx = sensor.x;
-
-    if (sensor.x > maxx)
-      maxx = sensor.x;
-
-    if (sensor.y > maxy)
-      maxy = sensor.y;
-  }
-
-  int cols = maxx - minx + 1;
-  int rows = maxy + 1;
-
-  int **matrix = malloc(rows * sizeof(int *));
-
-  for (int i = 0; i < rows; i++) {
-    matrix[i] = malloc(cols * sizeof(int));
-  }
-
-  for (int y = 0; y < rows; y++) {
-    for (int x = 0; x < cols; x++) {
-      point p = {.x = x + minx, .y = y};
-      if (point_in_array(p, sensors))
-        matrix[y][x] = SENSOR;
-      else if (point_in_array(p, beacons))
-        matrix[y][x] = BEACON;
-      else
-        matrix[y][x] = UNKNOWN;
+    if (p.y >= sensor.y - sensor.distance &&
+        p.y <= sensor.y + sensor.distance) {
+      for (int x = sensor.x - sensor.distance; x < sensor.x + sensor.distance;
+           x++) {
+        p.x = x;
+        if (distance(p, sensor) <= sensor.distance &&
+            !POINTS_ARE_EQUAL(p, sensor) && !POINTS_ARE_EQUAL(p, beacon)) {
+          if (p.x > maxx)
+            maxx = p.x;
+          if (p.x < minx)
+            minx = p.x;
+        }
+      }
     }
   }
+  printf("%d\n", abs(minx - maxx) + 1 - devices.size);
 
-  print_matrix(rows, cols, matrix);
-
-  free_point_array(&sensors);
-  free_point_array(&beacons);
-
-  free_matrix(rows, &matrix);
-
+  free_point_array(&devices);
   return 0;
 }
