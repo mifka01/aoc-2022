@@ -35,7 +35,6 @@ typedef struct point_arr {
 typedef struct g_row {
   int y;
   int blocked;
-  point_arr available;
 } g_row;
 
 typedef struct range {
@@ -172,14 +171,6 @@ void get_row(g_row *row, point_arr sensors, int y) {
 
   for (int i = 0; i < ranges_size; i++) {
     row->blocked += ranges[i].to - ranges[i].from + 1;
-
-    if (i != ranges_size - 1 && ranges[i + 1].from - ranges[i + 1].to != 1) {
-      for (int j = ranges[i].to + 1; j < ranges[i + 1].from; j++) {
-        point tmp = {.x = j, .y = y};
-        if (!is_beacon(tmp, sensors))
-          add_point(&row->available, tmp);
-      }
-    }
   }
   row->blocked -= sensors_on_y;
 
@@ -216,12 +207,10 @@ int main() {
   }
 
   g_row r;
-  init_point_array(&r.available, REALLOC_AMOUNT);
   get_row(&r, sensors, 2000000);
 
   printf("Blocked points: %d\n", r.blocked);
 
-  free(r.available.points);
   free_point_array(&sensors);
   return 0;
 }
