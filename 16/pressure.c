@@ -30,7 +30,8 @@ void add_neighbor(neighbors_arr *arr, char *str) {
     arr->max_size += REALLOC_AMOUNT;
   }
 
-  arr->names[arr->size] = str;
+  arr->names[arr->size] = malloc(strlen(str) + 1 * sizeof(char));
+  strcpy(arr->names[arr->size], str);
   arr->size++;
 }
 
@@ -40,7 +41,13 @@ void init_neighbors_array(neighbors_arr *arr, int length) {
   arr->max_size = length;
 }
 
-void free_neighbors_array(neighbors_arr *arr) { free(arr->names); }
+void free_neighbors_array(neighbors_arr *arr) {
+  for (int i = 0; i < arr->size; i++) {
+    free(arr->names[i]);
+  }
+  free(arr->names);
+  free(arr);
+}
 
 unsigned int hash(const char *str) {
   unsigned int hash = 0;
@@ -48,6 +55,13 @@ unsigned int hash(const char *str) {
     hash = 31 * hash + str[i];
   }
   return hash;
+}
+
+void free_valve(valve *v) {
+  if (v) {
+    free_neighbors_array(v->neighbors);
+    free(v);
+  }
 }
 
 void print_valve(valve *v) {
@@ -76,7 +90,7 @@ int main() {
   char row[MAX_LENGTH + 2];
 
   map valves;
-  init_map(&valves, &hash);
+  init_map(&valves, &hash, NULL, (void *)&free_valve);
 
   while (fgets(row, MAX_LENGTH + 2, stdin) != NULL) {
     row[strlen(row) - 1] = '\0';
@@ -103,7 +117,7 @@ int main() {
 
     char *token = strtok(neighbors, ", ");
     while (token != NULL) {
-      add_neighbor(current_valve->neighbors, strdup(token));
+      add_neighbor(current_valve->neighbors, token);
       token = strtok(NULL, ", ");
     }
 
@@ -112,6 +126,7 @@ int main() {
     add(&valves, current_valve->name, current_valve);
   }
   print_map(&valves);
+  free_map(&valves);
 
   return 0;
 }
