@@ -3,14 +3,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_map(map *m, unsigned int (*hash)(const char *key)) {
+void init_map(map *m, unsigned int (*hash)(const char *key),
+              void (*free_key)(void *), void (*free_value)(void *)) {
   m->size = 0;
   m->max_size = HASHMAP_REALLOC_AMOUNT;
-  m->buckets = malloc(HASHMAP_REALLOC_AMOUNT * sizeof(bucket *));
+  m->buckets = calloc(HASHMAP_REALLOC_AMOUNT, sizeof(bucket *));
   m->hash = hash;
+  m->free_key = free_key;
+  m->free_value = free_value;
 }
 
-void free_map(map *m) { free(m->buckets); }
+void free_bucket(bucket *b, void (*free_key)(void *),
+                 void (*free_value)(void *)) {
+  if (b) {
+    if (free_key != NULL)
+      free_key(b->key);
+    if (free_value != NULL)
+      free_value(b->value);
+    free_bucket(b->next, free_key, free_value);
+    free(b);
+  }
+}
+
+void free_map(map *m) {
+  for (int i = 0; i < m->max_size; i++) {
+    free_bucket(m->buckets[i], m->free_key, m->free_value);
+  }
+  free(m->buckets);
+}
 
 int rehash(map *m, int new_size) {
   bucket **buckets = calloc(new_size, sizeof(bucket *));
@@ -42,7 +62,7 @@ int add(map *m, char *key, void *value) {
     rehash(m, m->max_size + HASHMAP_REALLOC_AMOUNT);
   }
 
-  bucket *node; // new item we want to add
+  bucket *node = NULL; // new item we want to add
   bucket **bucket =
       &m->buckets[m->hash(key) %
                   m->max_size]; // bucket at index where we wanna add
@@ -52,11 +72,15 @@ int add(map *m, char *key, void *value) {
     bucket = &(*bucket)->next;
   }
 
-  // new - insert
+  // already in hashtable - replace
   if (*bucket) {
+    if (m->free_key != NULL)
+      m->free_key((*bucket)->key);
+    if (m->free_value != NULL)
+      m->free_value((*bucket)->value);
     node = *bucket;
   }
-  // already in hashtable - replace
+  // new - insert
   else {
     node = malloc(sizeof(*node));
     if (node == NULL) {

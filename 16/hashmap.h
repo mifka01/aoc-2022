@@ -15,11 +15,17 @@ typedef struct map {
   int size;
   int max_size;
   unsigned int (*hash)(const char *key);
+  void (*free_key)(void *);
+  void (*free_value)(void *);
 } map;
 
-void init_map(map *m, unsigned int (*hash)(const char *key));
+void init_map(map *m, unsigned int (*hash)(const char *key),
+              void (*free_key)(void *), void (*free_value)(void *));
 
 void free_map(map *m);
+
+void free_bucket(bucket *b, void (*free_key)(void *),
+                 void (*free_value)(void *));
 
 int rehash(map *m, int new_size);
 
