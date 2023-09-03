@@ -1,6 +1,7 @@
 #ifndef HASHMAP_H_
 #define HASHMAP_H_
 
+#include <stddef.h>
 #define MAX_LOAD_FACTOR 0.7
 #define HASHMAP_REALLOC_AMOUNT 20
 
@@ -29,7 +30,7 @@ void free_bucket(bucket *b, void (*free_key)(void *),
 
 int rehash(map *m, int new_size);
 
-int add(map *m, char *key, void *value);
+int add(map *m, char *key, void *value, size_t value_size);
 
 void *get(map *m, char *key);
 

@@ -18,14 +18,21 @@ void free_bucket(bucket *b, void (*free_key)(void *),
   if (b) {
     if (free_key != NULL)
       free_key(b->key);
+    else
+      free(b->key);
+
     if (free_value != NULL)
       free_value(b->value);
+    else
+      free(b->value);
+
     free_bucket(b->next, free_key, free_value);
     free(b);
   }
 }
 
 void free_map(map *m) {
+
   for (int i = 0; i < m->max_size; i++) {
     free_bucket(m->buckets[i], m->free_key, m->free_value);
   }
@@ -56,7 +63,7 @@ int rehash(map *m, int new_size) {
   return 0;
 }
 
-int add(map *m, char *key, void *value) {
+int add(map *m, char *key, void *value, size_t value_size) {
 
   if ((float)m->size / m->max_size > MAX_LOAD_FACTOR) {
     rehash(m, m->max_size + HASHMAP_REALLOC_AMOUNT);
@@ -91,8 +98,22 @@ int add(map *m, char *key, void *value) {
     *bucket = node;
   }
 
-  node->key = key;
-  node->value = value;
+  node->key = malloc((strlen(key) + 1) * sizeof(char));
+  if (node->key == NULL) {
+    free(node);
+    printf("Error: Memory allocation failed for key.\n");
+    return 1;
+  }
+  strcpy(node->key, key);
+
+  node->value = malloc(value_size);
+  if (node->value == NULL) {
+    free(node->key);
+    free(node);
+    printf("Error: Memory allocation failed for value.\n");
+    return 1;
+  }
+  memcpy(node->value, value, value_size);
 
   m->size++;
   return 0;
