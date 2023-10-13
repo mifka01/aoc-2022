@@ -1,3 +1,8 @@
 .DS_STORE
 mcal
 input.txt
+
+compile_commands.json
+.cache
+
+*.dSYM
